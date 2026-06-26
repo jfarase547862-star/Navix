@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Models\Office;
+
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -20,6 +22,21 @@ Route::get('/map', function () {
 Route::get('/scan', function () {
     return Inertia::render('scan');
 })->name('scan');
+
+Route::get('/office/{officeId}', function (string $officeId) {
+    $office = Office::find($officeId);
+
+    abort_if(!$office, 404);
+
+    return Inertia::render('office', [
+        'office' => $office,
+    ]);
+})->name('office.show');
+
+
+Route::get('/login', function () {
+    return Inertia::render('Auth/Login');
+})->name('login');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

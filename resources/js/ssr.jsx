@@ -13,7 +13,8 @@ createServer((page) =>
             const pages = import.meta.glob('./pages/**/*.tsx', {
                 eager: true,
             });
-            return pages[`./pages/${name}.tsx`];
+            // import.meta.glob with `eager: true` returns module objects; pick `.default`
+            return pages[`./pages/${name}.tsx`]?.default ?? pages[`./pages/${name}.tsx`];
         },
         // prettier-ignore
         setup: ({ App, props }) => <App {...props} />,
