@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
 
     return (
         <>
-            <Head title="Analytics — Navix Admin" />
+            <Head title="Analytics — DavaNav Admin" />
             <AdminShell
                 title="Analytics Dashboard"
                 description="Visitor traffic, navigation usage, and QR insights."

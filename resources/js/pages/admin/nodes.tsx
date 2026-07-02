@@ -82,7 +82,7 @@ export default function NodesPage() {
 
     return (
         <>
-            <Head title="Navigation Nodes — Navix Admin" />
+            <Head title="Navigation Nodes — DavaNav Admin" />
             <AdminShell
                 title="Navigation Nodes"
                 description="Define hallways, stairs, elevators, exits, and the connections between them."

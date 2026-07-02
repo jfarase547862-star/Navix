@@ -26,16 +26,16 @@ export default function SettingsPage() {
 
     const cards: { key: Modal; title: string; desc: string; icon: any }[] = [
         { key: 'backup', title: 'Backup & Restore', desc: 'Export and import system data.', icon: Database },
-        { key: 'about', title: 'About', desc: 'Navix Solution credits.', icon: FileText },
+        { key: 'about', title: 'About', desc: 'DavaNav Solution credits.', icon: FileText },
         { key: 'audit', title: 'Audit Logs', desc: 'Recent system activity.', icon: ScrollText },
     ];
 
     return (
         <>
-            <Head title="Settings — Navix Admin" />
+            <Head title="Settings — DavaNav Admin" />
             <AdminShell
                 title="Settings"
-                description="Configure the Navix admin portal."
+                description="Configure the DavaNav admin portal."
                 breadcrumbs={[{ label: 'Settings' }]}
             >
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,7 +62,7 @@ export default function SettingsPage() {
                                 const data = JSON.stringify(useAdminStore.length, null, 2);
                                 const blob = new Blob([data], { type: 'application/json' });
                                 const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a'); a.href = url; a.download = `navix-backup-${Date.now()}.json`; a.click();
+                                const a = document.createElement('a'); a.href = url; a.download = `davanav-backup-${Date.now()}.json`; a.click();
                                 URL.revokeObjectURL(url);
                                 toast.success('Backup downloaded');
                             }}>Download Backup</Button>
@@ -89,9 +89,9 @@ export default function SettingsPage() {
                 {/* About */}
                 <Dialog open={open === 'about'} onOpenChange={(o) => !o && setOpen(null)}>
                     <DialogContent>
-                        <DialogHeader><DialogTitle>About Navix Solution</DialogTitle><DialogDescription>Indoor wayfinding for Davao City Hall.</DialogDescription></DialogHeader>
+                        <DialogHeader><DialogTitle>About DavaNav Solution</DialogTitle><DialogDescription>Indoor wayfinding for Davao City Hall.</DialogDescription></DialogHeader>
                         <p className="text-sm text-muted-foreground">
-                            Navix Solution helps visitors and staff navigate Davao City Hall through QR codes, indoor maps, and a centralized admin portal.
+                            DavaNav Solution helps visitors and staff navigate Davao City Hall through QR codes, indoor maps, and a centralized admin portal.
                         </p>
                         <DialogFooter><Button onClick={() => setOpen(null)}>Close</Button></DialogFooter>
                     </DialogContent>

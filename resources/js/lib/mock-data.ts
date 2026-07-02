@@ -1,4 +1,7 @@
-// Mock data for Navix Solution — Davao City Hall
+// Mock data for DavaNav Solution — Davao City Hall
+
+
+
 
 export type Status = "Active" | "Inactive";
 
@@ -11,6 +14,43 @@ export interface Department {
   status: Status;
 }
 
+export type Floor = {
+  floor_id: number;
+  building_id: number;
+  floor_number: number;
+  floor_name: string | null;
+  floor_map: string | null;
+};
+ 
+export const seedFloors: Floor[] = [
+  {
+    floor_id: 1,
+    building_id: 1,
+    floor_number: 1,
+    floor_name: 'Ground Lobby',
+    floor_map: '/floor-maps/floor-1.png',
+  },
+  {
+    floor_id: 2,
+    building_id: 1,
+    floor_number: 2,
+    floor_name: 'Main Offices',
+    floor_map: '/floor-maps/floor-2.png',
+  },
+  {
+    floor_id: 3,
+    building_id: 1,
+    floor_number: 3,
+    floor_name: 'Upper Offices',
+    floor_map: '/floor-maps/floor-3.png',
+  },
+];
+ 
+export function getFloor(floorNumber: number, buildingId = 1) {
+  return seedFloors.find(
+    (f) => f.floor_number === floorNumber && f.building_id === buildingId,
+  );
+}
 export interface Office {
   id: string;
   name: string;
@@ -34,13 +74,27 @@ export interface Office {
 }
 
 export interface QrCode {
-  id: string;
-  code: string;
+  id: string;              // qr_id (PK)
+  code: string;             // short display code, e.g. "DAVANAV-MAIN-ENT"
   label: string;
-  officeId: string | null;
+  officeId: string | null;  // office_id (FK -> Office.id)
+  qrString: string;          // qr_string — the actual encoded URL/payload
+  qrImagePath: string;       // qr_image_path — file path to the generated QR image
   status: "Active" | "Inactive";
   scans: number;
-  createdAt: string;
+  createdAt: string;         // generated_at
+}
+
+// Base URL the kiosk resolves when a QR is scanned. Swap for the real
+// deployed kiosk domain when wiring this up to production.
+export const QR_BASE_URL = "https://davanav.davaocity.gov.ph/kiosk";
+
+export function buildQrString(officeId: string | null) {
+  return officeId ? `${QR_BASE_URL}?office=${officeId}` : `${QR_BASE_URL}`;
+}
+
+export function buildQrImagePath(code: string) {
+  return `/qr-codes/${code}.png`;
 }
 
 export interface User {
@@ -60,10 +114,19 @@ export interface NavNode {
   connections: string[];
 }
 
-export interface FloorMap {
-  id: string;
-  floor: string;
+export interface Building {
+  buildingId: string;
   name: string;
+}
+
+export interface FloorMap {
+  id: string;              // floor_id (PK)
+  buildingId: string;      // building_id (FK -> Building.buildingId)
+  floor: string;            // existing "1F"/"2F"/"3F" display code, used by
+                             // seedNodes/seedDepartments — kept for backward compat
+  floorNumber: number;      // floor_number — numeric level, matches Office.floor
+  name: string;              // floor_name
+  mapImage?: string;         // floor_map — file path to the uploaded floor plan image
   uploaded: string;
   status: Status;
 }
@@ -151,6 +214,7 @@ export const seedOffices: Office[] = [
     department: "Ancillary Service Unit",
     departmentId: "d1",
     floor: 1,
+    internal: true,
     room: "Room 102",
     status: "Active",
     qrAssigned: false,
@@ -168,6 +232,7 @@ export const seedOffices: Office[] = [
     department: "Barangay and Cultural Communities Affairs Division",
     departmentId: "d2",
     floor: 2,
+    internal: true,
     room: "Room 202",
     status: "Active",
     qrAssigned: false,
@@ -185,6 +250,7 @@ export const seedOffices: Office[] = [
     department: "Business Bureau",
     departmentId: "d3",
     floor: 1,
+    internal: true,
     room: "Room 120",
     status: "Active",
     qrAssigned: true,
@@ -202,6 +268,7 @@ export const seedOffices: Office[] = [
     department: "City Accountant's Office",
     departmentId: "d4",
     floor: 3,
+    internal: true,
     room: "Room 301",
     status: "Active",
     qrAssigned: false,
@@ -219,6 +286,7 @@ export const seedOffices: Office[] = [
     department: "City Administrator's Office",
     departmentId: "d5",
     floor: 3,
+    internal: true,
     room: "Room 302",
     status: "Active",
     qrAssigned: false,
@@ -236,6 +304,7 @@ export const seedOffices: Office[] = [
     department: "City Agriculturist's Office",
     departmentId: "d6",
     floor: 2,
+    internal: true,
     room: "Room 203",
     status: "Active",
     qrAssigned: false,
@@ -253,6 +322,7 @@ export const seedOffices: Office[] = [
     department: "City Anti-Drug Abuse Council",
     departmentId: "d7",
     floor: 2,
+    internal: true,
     room: "Room 204",
     status: "Active",
     qrAssigned: false,
@@ -270,6 +340,7 @@ export const seedOffices: Office[] = [
     department: "City Archives and Records Office",
     departmentId: "d8",
     floor: 1,
+    internal: true,
     room: "Room 103",
     status: "Active",
     qrAssigned: false,
@@ -287,6 +358,7 @@ export const seedOffices: Office[] = [
     department: "City Assessor's Office",
     departmentId: "d9",
     floor: 2,
+    internal: true,
     room: "Room 205",
     status: "Active",
     qrAssigned: true,
@@ -304,6 +376,7 @@ export const seedOffices: Office[] = [
     department: "City Budget Office",
     departmentId: "d10",
     floor: 3,
+    internal: true,
     room: "Room 303",
     status: "Active",
     qrAssigned: false,
@@ -321,6 +394,7 @@ export const seedOffices: Office[] = [
     department: "City College of Davao",
     departmentId: "d11",
     floor: 1,
+    internal: true,
     room: "Admin Building",
     status: "Active",
     qrAssigned: false,
@@ -338,6 +412,7 @@ export const seedOffices: Office[] = [
     department: "City Cooperative Development Office",
     departmentId: "d12",
     floor: 2,
+    internal: true,
     room: "Room 206",
     status: "Active",
     qrAssigned: false,
@@ -355,6 +430,7 @@ export const seedOffices: Office[] = [
     department: "City Economic Enterprise Office",
     departmentId: "d13",
     floor: 2,
+    internal: true,
     room: "Room 207",
     status: "Active",
     qrAssigned: false,
@@ -372,6 +448,7 @@ export const seedOffices: Office[] = [
     department: "City Engineer's Office",
     departmentId: "d14",
     floor: 2,
+    internal: true,
     room: "Room 210",
     status: "Active",
     qrAssigned: true,
@@ -389,6 +466,7 @@ export const seedOffices: Office[] = [
     department: "City Environment and Natural Resources Office",
     departmentId: "d15",
     floor: 2,
+    internal: true,
     room: "Room 208",
     status: "Active",
     qrAssigned: false,
@@ -406,6 +484,7 @@ export const seedOffices: Office[] = [
     department: "City General Services Office",
     departmentId: "d16",
     floor: 1,
+    internal: true,
     room: "Room 104",
     status: "Active",
     qrAssigned: false,
@@ -423,6 +502,7 @@ export const seedOffices: Office[] = [
     department: "City Health Office",
     departmentId: "d17",
     floor: 1,
+    internal: true,
     room: "Room 110",
     status: "Active",
     qrAssigned: true,
@@ -440,6 +520,7 @@ export const seedOffices: Office[] = [
     department: "City Information Technology Center",
     departmentId: "d18",
     floor: 3,
+    internal: true,
     room: "Room 304",
     status: "Active",
     qrAssigned: false,
@@ -457,6 +538,7 @@ export const seedOffices: Office[] = [
     department: "City Information Office",
     departmentId: "d19",
     floor: 1,
+    internal: true,
     room: "Room 105",
     status: "Active",
     qrAssigned: false,
@@ -474,6 +556,7 @@ export const seedOffices: Office[] = [
     department: "City Legal Office",
     departmentId: "d20",
     floor: 3,
+    internal: true,
     room: "Room 305",
     status: "Active",
     qrAssigned: false,
@@ -491,6 +574,7 @@ export const seedOffices: Office[] = [
     department: "City Library and Information Center",
     departmentId: "d21",
     floor: 1,
+    internal: true,
     room: "Room 106",
     status: "Active",
     qrAssigned: false,
@@ -508,6 +592,7 @@ export const seedOffices: Office[] = [
     department: "City Planning and Development Office",
     departmentId: "d22",
     floor: 2,
+    internal: true,
     room: "Room 209",
     status: "Active",
     qrAssigned: true,
@@ -525,6 +610,7 @@ export const seedOffices: Office[] = [
     department: "City Social Welfare and Development Office",
     departmentId: "d23",
     floor: 1,
+    internal: true,
     room: "Room 115",
     status: "Active",
     qrAssigned: true,
@@ -542,6 +628,7 @@ export const seedOffices: Office[] = [
     department: "City Tourism Operations Office",
     departmentId: "d24",
     floor: 1,
+    internal: true,
     room: "Room 107",
     status: "Active",
     qrAssigned: false,
@@ -559,6 +646,7 @@ export const seedOffices: Office[] = [
     department: "City Transportation and Traffic Management Office",
     departmentId: "d25",
     floor: 2,
+    internal: true,
     room: "Room 211",
     status: "Active",
     qrAssigned: false,
@@ -576,6 +664,7 @@ export const seedOffices: Office[] = [
     department: "City Treasurer's Office",
     departmentId: "d26",
     floor: 1,
+    internal: true,
     room: "Room 110",
     status: "Active",
     qrAssigned: true,
@@ -593,6 +682,7 @@ export const seedOffices: Office[] = [
     department: "City Veterinarian's Office",
     departmentId: "d27",
     floor: 1,
+    internal: true,
     room: "Room 108",
     status: "Active",
     qrAssigned: false,
@@ -610,6 +700,7 @@ export const seedOffices: Office[] = [
     department: "Civil Registrar's Office",
     departmentId: "d28",
     floor: 1,
+    internal: true,
     room: "Room 105",
     status: "Active",
     qrAssigned: true,
@@ -627,6 +718,7 @@ export const seedOffices: Office[] = [
     department: "Correspondence and Record Division",
     departmentId: "d29",
     floor: 2,
+    internal: true,
     room: "Room 212",
     status: "Active",
     qrAssigned: false,
@@ -644,6 +736,7 @@ export const seedOffices: Office[] = [
     department: "Davao City Central 911 Emergency",
     departmentId: "d30",
     floor: 1,
+    internal: true,
     room: "Room GF-001",
     status: "Active",
     qrAssigned: true,
@@ -661,6 +754,7 @@ export const seedOffices: Office[] = [
     department: "Davao City Housing Office",
     departmentId: "d31",
     floor: 2,
+    internal: true,
     room: "Room 213",
     status: "Active",
     qrAssigned: false,
@@ -678,6 +772,7 @@ export const seedOffices: Office[] = [
     department: "Davao City Investment Promotion Center",
     departmentId: "d32",
     floor: 2,
+    internal: true,
     room: "Room 214",
     status: "Active",
     qrAssigned: false,
@@ -695,6 +790,7 @@ export const seedOffices: Office[] = [
     department: "Davao City Muslim Affairs Office",
     departmentId: "d33",
     floor: 2,
+    internal: true,
     room: "Room 215",
     status: "Active",
     qrAssigned: false,
@@ -712,6 +808,7 @@ export const seedOffices: Office[] = [
     department: "Davao City Treatment and Rehabilitation Center for Drug Dependents",
     departmentId: "d34",
     floor: 1,
+    internal: true,
     room: "Rehabilitation Building",
     status: "Active",
     qrAssigned: false,
@@ -729,6 +826,7 @@ export const seedOffices: Office[] = [
     department: "Disaster Risk Reduction and Management Office",
     departmentId: "d35",
     floor: 1,
+    internal: true,
     room: "Room 109",
     status: "Active",
     qrAssigned: false,
@@ -746,6 +844,7 @@ export const seedOffices: Office[] = [
     department: "Educational Benefit System Unit",
     departmentId: "d36",
     floor: 2,
+    internal: true,
     room: "Room 216",
     status: "Active",
     qrAssigned: false,
@@ -763,6 +862,7 @@ export const seedOffices: Office[] = [
     department: "Human Resource Management Office",
     departmentId: "d37",
     floor: 3,
+    internal: true,
     room: "Room 306",
     status: "Active",
     qrAssigned: false,
@@ -780,6 +880,7 @@ export const seedOffices: Office[] = [
     department: "Integrated Gender and Development Division",
     departmentId: "d38",
     floor: 2,
+    internal: true,
     room: "Room 217",
     status: "Active",
     qrAssigned: false,
@@ -797,6 +898,7 @@ export const seedOffices: Office[] = [
     department: "Internal Audit Service Division",
     departmentId: "d39",
     floor: 3,
+    internal: true,
     room: "Room 307",
     status: "Active",
     qrAssigned: false,
@@ -814,6 +916,7 @@ export const seedOffices: Office[] = [
     department: "Lingap",
     departmentId: "d40",
     floor: 1,
+    internal: true,
     room: "Room 111",
     status: "Active",
     qrAssigned: false,
@@ -831,6 +934,7 @@ export const seedOffices: Office[] = [
     department: "Madrasah Comprehensive Development and Promotion Unit",
     departmentId: "d41",
     floor: 2,
+    internal: true,
     room: "Room 218",
     status: "Active",
     qrAssigned: false,
@@ -848,6 +952,7 @@ export const seedOffices: Office[] = [
     department: "Museo Dabawenyo",
     departmentId: "d42",
     floor: 1,
+    internal: true,
     room: "GF – Museum Building",
     status: "Active",
     qrAssigned: false,
@@ -865,6 +970,7 @@ export const seedOffices: Office[] = [
     department: "Office for Senior Citizens Affairs",
     departmentId: "d43",
     floor: 1,
+    internal: true,
     room: "Room GF-04",
     status: "Active",
     qrAssigned: true,
@@ -882,6 +988,7 @@ export const seedOffices: Office[] = [
     department: "Office of the City Building Official",
     departmentId: "d44",
     floor: 2,
+    internal: true,
     room: "Room 219",
     status: "Active",
     qrAssigned: false,
@@ -916,6 +1023,7 @@ export const seedOffices: Office[] = [
     department: "Public Employment Service Office",
     departmentId: "d46",
     floor: 1,
+    internal: true,
     room: "Room 112",
     status: "Active",
     qrAssigned: false,
@@ -933,6 +1041,7 @@ export const seedOffices: Office[] = [
     department: "Public Safety and Security Office",
     departmentId: "d47",
     floor: 1,
+    internal: true,
     room: "Room 113",
     status: "Active",
     qrAssigned: false,
@@ -950,6 +1059,7 @@ export const seedOffices: Office[] = [
     department: "Sangguniang Panlungsod",
     departmentId: "d48",
     floor: 3,
+    internal: true,
     room: "Room 310",
     status: "Active",
     qrAssigned: false,
@@ -967,6 +1077,7 @@ export const seedOffices: Office[] = [
     department: "Sports Development Division",
     departmentId: "d49",
     floor: 2,
+    internal: true,
     room: "Room 220",
     status: "Active",
     qrAssigned: false,
@@ -984,6 +1095,7 @@ export const seedOffices: Office[] = [
     department: "Vices Regulation Unit",
     departmentId: "d50",
     floor: 1,
+    internal: true,
     room: "Room 114",
     status: "Active",
     qrAssigned: false,
@@ -1000,6 +1112,12 @@ export const seedOffices: Office[] = [
 export function getOffice(id: string) {
   return seedOffices.find((o) => o.id === id);
 }
+
+export const FLOOR_LAYOUT = {
+  entrance: { x: 1, y: 5 },
+  stairs: { x: 7, y: 4 },
+  elevator: { x: 6, y: 5 },
+} as const;
 
 // `search.tsx` expects an `offices` export (not `seedOffices`) where each
 // office has an `isInternal` flag — true for offices physically located
@@ -1023,14 +1141,14 @@ export const offices: (Office & { isInternal: boolean })[] = seedOffices.map((o)
 // ── QR Codes ──────────────────────────────────────────────────────────────────
 
 export const seedQrCodes: QrCode[] = [
-  { id: "q1", code: "NAVIX-MAIN-ENT",  label: "Main Entrance",           officeId: null,                              status: "Active", scans: 412, createdAt: "2025-05-01" },
-  { id: "q2", code: "NAVIX-GF-LOBBY",  label: "Ground Floor Lobby",      officeId: null,                              status: "Active", scans: 305, createdAt: "2025-05-01" },
-  { id: "q3", code: "NAVIX-TREAS-01",  label: "City Treasurer's Office", officeId: "city-treasurers-office",          status: "Active", scans: 198, createdAt: "2025-05-04" },
-  { id: "q4", code: "NAVIX-HLTH-01",   label: "City Health Office",      officeId: "city-health-office",              status: "Active", scans: 175, createdAt: "2025-05-04" },
-  { id: "q5", code: "NAVIX-ENGR-01",   label: "City Engineer's Office",  officeId: "city-engineers-office",           status: "Active", scans: 142, createdAt: "2025-05-10" },
-  { id: "q6", code: "NAVIX-CIVIL-01",  label: "Civil Registrar's Office",officeId: "civil-registrars-office",         status: "Active", scans: 321, createdAt: "2025-05-10" },
-  { id: "q7", code: "NAVIX-BSNSS-01",  label: "Business Bureau",         officeId: "business-bureau",                 status: "Active", scans: 289, createdAt: "2025-05-12" },
-  { id: "q8", code: "NAVIX-OSCA-01",   label: "Senior Citizens Affairs", officeId: "office-for-senior-citizens-affairs", status: "Active", scans: 210, createdAt: "2025-05-15" },
+  { id: "q1", code: "DAVANAV-MAIN-ENT",  label: "Main Entrance",           officeId: null,                                  qrString: buildQrString(null),                                  qrImagePath: buildQrImagePath("DAVANAV-MAIN-ENT"),  status: "Active", scans: 412, createdAt: "2025-05-01" },
+  { id: "q2", code: "DAVANAV-GF-LOBBY",  label: "Ground Floor Lobby",      officeId: null,                                  qrString: buildQrString(null),                                  qrImagePath: buildQrImagePath("DAVANAV-GF-LOBBY"),  status: "Active", scans: 305, createdAt: "2025-05-01" },
+  { id: "q3", code: "DAVANAV-TREAS-01",  label: "City Treasurer's Office", officeId: "city-treasurers-office",              qrString: buildQrString("city-treasurers-office"),              qrImagePath: buildQrImagePath("DAVANAV-TREAS-01"),  status: "Active", scans: 198, createdAt: "2025-05-04" },
+  { id: "q4", code: "DAVANAV-HLTH-01",   label: "City Health Office",      officeId: "city-health-office",                  qrString: buildQrString("city-health-office"),                  qrImagePath: buildQrImagePath("DAVANAV-HLTH-01"),   status: "Active", scans: 175, createdAt: "2025-05-04" },
+  { id: "q5", code: "DAVANAV-ENGR-01",   label: "City Engineer's Office",  officeId: "city-engineers-office",               qrString: buildQrString("city-engineers-office"),               qrImagePath: buildQrImagePath("DAVANAV-ENGR-01"),   status: "Active", scans: 142, createdAt: "2025-05-10" },
+  { id: "q6", code: "DAVANAV-CIVIL-01",  label: "Civil Registrar's Office",officeId: "civil-registrars-office",             qrString: buildQrString("civil-registrars-office"),             qrImagePath: buildQrImagePath("DAVANAV-CIVIL-01"),  status: "Active", scans: 321, createdAt: "2025-05-10" },
+  { id: "q7", code: "DAVANAV-BSNSS-01",  label: "Business Bureau",         officeId: "business-bureau",                     qrString: buildQrString("business-bureau"),                     qrImagePath: buildQrImagePath("DAVANAV-BSNSS-01"),  status: "Active", scans: 289, createdAt: "2025-05-12" },
+  { id: "q8", code: "DAVANAV-OSCA-01",   label: "Senior Citizens Affairs", officeId: "office-for-senior-citizens-affairs",  qrString: buildQrString("office-for-senior-citizens-affairs"),  qrImagePath: buildQrImagePath("DAVANAV-OSCA-01"),   status: "Active", scans: 210, createdAt: "2025-05-15" },
 ];
 
 // ── Users ─────────────────────────────────────────────────────────────────────
@@ -1054,13 +1172,25 @@ export const seedNodes: NavNode[] = [
   { id: "n7", label: "Emergency Exit South", type: "Emergency Exit", floor: "1F", connections: ["n2"] },
 ];
 
+// ── Buildings ─────────────────────────────────────────────────────────────────
+
+export const seedBuildings: Building[] = [
+  { buildingId: "b1", name: "Davao City Hall" },
+];
+
 // ── Floor Maps ────────────────────────────────────────────────────────────────
 
 export const seedFloorMaps: FloorMap[] = [
-  { id: "f1", floor: "1F", name: "Ground Floor Plan",  uploaded: "2025-04-12", status: "Active" },
-  { id: "f2", floor: "2F", name: "Second Floor Plan",  uploaded: "2025-04-12", status: "Active" },
-  { id: "f3", floor: "3F", name: "Third Floor Plan",   uploaded: "2025-04-12", status: "Active" },
+  { id: "f1", buildingId: "b1", floor: "1F", floorNumber: 1, name: "Ground Floor Plan", mapImage: "/floor-maps/floor-1.png", uploaded: "2025-04-12", status: "Active" },
+  { id: "f2", buildingId: "b1", floor: "2F", floorNumber: 2, name: "Second Floor Plan", mapImage: "/floor-maps/floor-2.png", uploaded: "2025-04-12", status: "Active" },
+  { id: "f3", buildingId: "b1", floor: "3F", floorNumber: 3, name: "Third Floor Plan",  mapImage: "/floor-maps/floor-3.png", uploaded: "2025-04-12", status: "Active" },
 ];
+
+export function getFloorMap(floorNumber: number, buildingId = "b1") {
+  return seedFloorMaps.find(
+    (f) => f.floorNumber === floorNumber && f.buildingId === buildingId,
+  );
+}
 
 // ── Notifications ─────────────────────────────────────────────────────────────
 

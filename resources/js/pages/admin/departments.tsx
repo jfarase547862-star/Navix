@@ -132,7 +132,7 @@ export default function AdminDepartments({ departments: initialDepartments = moc
 
     return (
         <>
-            <Head title="Department Management — Navix Admin" />
+            <Head title="Department Management — DavaNav Admin" />
             <AdminShell
                 title="Department Management"
                 description="Create, edit, and manage all departments across Davao City Hall."
@@ -195,7 +195,7 @@ export default function AdminDepartments({ departments: initialDepartments = moc
                                     </TableHead>
                                     <TableHead>
                                         <button className="flex items-center gap-1" onClick={() => toggleSort('head')}>
-                                            Head <ArrowUpDown className="h-3 w-3" />
+                                            OIC <ArrowUpDown className="h-3 w-3" />
                                         </button>
                                     </TableHead>
                                     <TableHead>
@@ -280,7 +280,7 @@ export default function AdminDepartments({ departments: initialDepartments = moc
                                 <Input value={current.name} onChange={(e) => setCurrent({ ...current, name: e.target.value })} />
                             </div>
                             <div className="space-y-1">
-                                <Label>Department Head *</Label>
+                                <Label>OIC *</Label>
                                 <Input value={current.head} onChange={(e) => setCurrent({ ...current, head: e.target.value })} />
                             </div>
                             <div className="space-y-1">
@@ -322,7 +322,7 @@ export default function AdminDepartments({ departments: initialDepartments = moc
                             <DialogDescription>Department details</DialogDescription>
                         </DialogHeader>
                         <dl className="grid grid-cols-2 gap-3 text-sm">
-                            <dt className="text-muted-foreground">Department Head</dt><dd>{current.head}</dd>
+                            <dt className="text-muted-foreground">OIC</dt><dd>{current.head}</dd>
                             <dt className="text-muted-foreground">Floor</dt><dd>{current.floor}</dd>
                             <dt className="text-muted-foreground">Office Count</dt><dd>{current.officeCount}</dd>
                             <dt className="text-muted-foreground">Status</dt><dd><StatusBadge status={current.status} /></dd>

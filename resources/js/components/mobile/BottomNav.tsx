@@ -27,6 +27,7 @@ export function BottomNav() {
         {items.map((it) => {
           const Icon = it.icon;
           const active = it.exact ? pathname === it.to : pathname === it.to || pathname.startsWith(it.to + "/");
+
           if (it.center) {
             return (
               <Link
@@ -34,24 +35,41 @@ export function BottomNav() {
                 href={it.to}
                 className="flex flex-col items-center justify-end gap-1"
               >
-                <span className={cn(
-                  "grid h-12 w-12 -translate-y-3 place-items-center rounded-full shadow-[var(--shadow-elevated)] transition-transform",
-                  active ? "scale-105 [background-image:var(--gradient-gold)] text-gov-gold-foreground" : "[background-image:var(--gradient-hero)] text-gov-blue-foreground"
-                )}>
-                  <Icon className="h-5 w-5" />
+                <span
+                  className={cn(
+                    "grid h-12 w-12 -translate-y-3 place-items-center rounded-full bg-gradient-to-br from-[#123f7f] to-[#0a2f66] text-white shadow-[0_8px_18px_-4px_rgba(10,47,102,0.55)] transition-transform",
+                    active && "scale-110 ring-2 ring-[#0b3d84]/30 ring-offset-2 ring-offset-background",
+                  )}
+                >
+                  <Icon className="h-5 w-5" strokeWidth={2} />
                 </span>
-                <span className={cn("text-[10px] font-medium", active ? "text-gov-blue" : "text-muted-foreground")}>{it.label}</span>
+                <span className={cn("text-[10px] font-semibold", active ? "text-gov-blue" : "text-muted-foreground")}>
+                  {it.label}
+                </span>
               </Link>
             );
           }
+
           return (
             <Link
               key={it.to}
               href={it.to}
               className="flex flex-col items-center gap-1 py-1"
             >
-              <Icon className={cn("h-5 w-5", active ? "text-gov-blue" : "text-muted-foreground")} />
-              <span className={cn("text-[10px] font-medium", active ? "text-gov-blue" : "text-muted-foreground")}>{it.label}</span>
+              <span
+                className={cn(
+                  "grid h-8 w-8 place-items-center rounded-full transition-colors",
+                  active && "bg-gov-blue-soft",
+                )}
+              >
+                <Icon
+                  className={cn("h-5 w-5", active ? "text-gov-blue" : "text-muted-foreground")}
+                  strokeWidth={active ? 2.25 : 2}
+                />
+              </span>
+              <span className={cn("text-[10px] font-medium", active ? "font-semibold text-gov-blue" : "text-muted-foreground")}>
+                {it.label}
+              </span>
             </Link>
           );
         })}

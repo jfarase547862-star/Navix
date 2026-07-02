@@ -103,6 +103,8 @@ export default function Directory() {
   const [keyboardVisible, setKeyboardVisible] = useState(true);
   const [textSize, setTextSize]       = useState<'normal' | 'large'>('normal');
   const [language, setLanguage]       = useState<'ENG' | 'CEB' | 'FIL'>('ENG');
+  const [accessibleRoute, setAccessibleRoute] = useState(false);
+  const [voiceGuide, setVoiceGuide] = useState(false);
 
   const filtered = useMemo(() => {
     if (!q) return seedOffices;
@@ -131,58 +133,58 @@ export default function Directory() {
         <SiteHeader />
 
         {/* ── Accessibility bar ── */}
-        <div style={{ background: PANEL_BG, borderBottom: '1px solid #e2e8f0' }}>
-          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            <div className="flex items-center gap-3">
-              <Eye className="h-5 w-5 flex-shrink-0" style={{ color: BLUE }} />
-              <div>
-                <div className="text-sm font-bold tracking-wide text-slate-800">NAVIX ACCESSIBILITY</div>
-                <div className="text-[11px] text-slate-400">WCAG 2.1 &amp; SENIOR ASSIST TOOL</div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-slate-500">Language:</span>
-              <div className="flex overflow-hidden rounded-full border border-slate-200">
-                {(['ENG', 'CEB', 'FIL'] as const).map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLanguage(l)}
-                    className="h-8 px-3 text-xs font-bold transition"
-                    style={
-                      language === l
-                        ? { background: BLUE, color: '#ffffff' }
-                        : { background: 'transparent', color: '#64748b' }
-                    }
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setTextSize(big ? 'normal' : 'large')}
-                className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-              >
-                <Type className="h-3.5 w-3.5" style={{ color: BLUE }} />
-                Text Size: {big ? 'LARGE' : 'NORMAL'}
-              </button>
-
-              <button className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50">
-                <Accessibility className="h-3.5 w-3.5" style={{ color: BLUE }} />
-                <span className="hidden sm:inline">Accessible Route: </span>OFF
-              </button>
-
-              <button className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50">
-                <Volume2 className="h-3.5 w-3.5" style={{ color: BLUE }} />
-                <span className="hidden sm:inline">Voice Guide: </span>OFF
-              </button>
-            </div>
-          </div>
-          <div className="mx-auto max-w-7xl px-4 pb-2 text-xs text-slate-400 sm:px-6">
-            Tap options to make screen easier to read
-          </div>
-        </div>
+        <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+                  <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <div className="flex items-center gap-3">
+                      <Eye className="h-5 w-5 flex-shrink-0" style={{ color: BLUE }} />
+                      <div>
+                        <div className="text-sm font-bold tracking-wide text-slate-800">DAVANAV ACCESSIBILITY</div>
+                        <div className="text-[11px] text-slate-400">Tap options to make screen easier to read</div>
+                      </div>
+                    </div>
+        
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-medium text-slate-500">Language:</span>
+                      <div className="flex overflow-hidden rounded-full border border-slate-200">
+                        {(['ENG', 'CEB', 'FIL'] as const).map((item) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => setLanguage(item)}
+                            className="h-8 px-3 text-xs font-bold transition"
+                            style={
+                              language === item
+                                ? { background: BLUE, color: '#ffffff' }
+                                : { background: 'transparent', color: '#64748b' }
+                            }
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+        
+                      <button
+                        type="button"
+                        onClick={() => setTextSize((current) => (current === 'normal' ? 'large' : 'normal'))}
+                        className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                      >
+                        <Type className="h-3.5 w-3.5" style={{ color: BLUE }} />
+                        Text Size: {textSize === 'large' ? 'LARGE' : 'NORMAL'}
+                      </button>
+        
+                      <button
+                        type="button"
+                        onClick={() => setVoiceGuide((value) => !value)}
+                        className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                      >
+                        <Volume2 className="h-3.5 w-3.5" style={{ color: BLUE }} />
+                        <span className="hidden sm:inline">Voice Guide: </span>
+                        {voiceGuide ? 'ON' : 'OFF'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                </div>
 
         {/* ── Title band ── */}
         <div style={{ background: BAND_GRADIENT, borderBottom: '1px solid #e2e8f0' }}>
@@ -214,7 +216,7 @@ export default function Directory() {
                 <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: BLUE }} />
+                      <div className="h-1.5 w-1.5 rounded-full" style={{ background: BLUE }} aria-hidden="true" />
                       Search Database
                     </span>
                     <button
@@ -259,8 +261,8 @@ export default function Directory() {
                 {keyboardVisible && (
                   <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
                     <div className="space-y-1.5 sm:space-y-2">
-                      {keyboardRows.map((row, i) => (
-                        <div key={i} className="flex justify-center gap-1 sm:gap-1.5">
+                      {keyboardRows.map((row) => (
+                        <div key={row.join('')} className="flex justify-center gap-1 sm:gap-1.5">
                           {row.map((k) => (
                             <button
                               key={k}
@@ -426,7 +428,7 @@ export default function Directory() {
 
                       {/* CTA */}
                       <Link
-                        href={`/office/${selected.id}`}
+                        href="/kiosk/offices"
                         className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-semibold text-white transition active:scale-[0.99]"
                         style={{ background: BLUE }}
                       >
@@ -443,7 +445,7 @@ export default function Directory() {
           </div>
         </main>
 
-        <SiteFooter />
+        
       </div>
     </>
   );

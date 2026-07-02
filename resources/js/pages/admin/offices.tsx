@@ -143,7 +143,7 @@ export default function AdminOffices({ offices: initialOffices = mockOffices }: 
 
     return (
         <>
-            <Head title="Office Management — Navix Admin" />
+            <Head title="Office Management — DavaNav Admin" />
             <AdminShell
                 title="Office Management"
                 description="Create, edit, and manage all offices across Davao City Hall."
@@ -376,7 +376,7 @@ export default function AdminOffices({ offices: initialOffices = mockOffices }: 
                                 ))}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                                NAVIX-{current.name.toUpperCase().replace(/\s+/g, '-').slice(0, 14)}
+                                DAVANAV-{current.name.toUpperCase().replace(/\s+/g, '-').slice(0, 14)}
                             </div>
                         </div>
                         <DialogFooter>

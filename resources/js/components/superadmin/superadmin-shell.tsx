@@ -1,13 +1,11 @@
 import { Link, usePage, router } from "@inertiajs/react";
 import {
-  LayoutDashboard, Building2, Building, Map, Network, QrCode, BarChart3,
-  Users, ShieldCheck, Bell, Settings, LogOut, Menu, ChevronRight, ArrowLeft,
-  Search, Home, X,
+  LayoutDashboard, Users, BarChart3, Bell, Settings, Menu,
+  ChevronRight, ArrowLeft, Home, X, Database, Cloud, Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { type PageProps } from "@/types";
 import {
@@ -20,17 +18,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NAV = [
-  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/offices", label: "Office Management", icon: Building2 },
-  { to: "/admin/departments", label: "Department Management", icon: Building },
-  { to: "/admin/floor-maps", label: "Floor Maps", icon: Map },
-  { to: "/admin/nodes", label: "Navigation Nodes", icon: Network },
-  { to: "/admin/qr-code", label: "QR Code Management", icon: QrCode },
-  { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
+  { id: "dashboard",   to: "/superadmin/dashboard", label: "Dashboard",         icon: LayoutDashboard, exact: true },
+  { id: "users",       to: "/superadmin/admin-accounts",     label: "Admin Accounts",    icon: Users },
+  { id: "settings",    to: "/superadmin/system-settings",  label: "System Settings",   icon: Settings },
+  { id: "database",    to: "/superadmin/database-schema", label: "Database Schema",   icon: Database },
+  { id: "deployment",  to: "/superadmin/deployment", label: "Deployment",        icon: Zap },
+  { id: "performance", to: "/superadmin/performance", label: "Performance",       icon: BarChart3 },
+  { id: "backup",      to: "/superadmin/backup-recovery", label: "Backup & Recovery", icon: Cloud },
 ];
 
-export interface AdminShellProps {
+// Only the first NAV item for a given route counts as "active" for that route,
+// so items sharing a href (e.g. Dashboard / Database Schema / Backup & Recovery
+// all pointing at /superadmin/dashboard) don't all light up at once.
+const PRIMARY_ID_FOR_ROUTE = NAV.reduce<Record<string, string>>((acc, item) => {
+  if (!acc[item.to]) acc[item.to] = item.id;
+  return acc;
+}, {});
+
+export interface SuperadminShellProps {
   title: string;
   description?: string;
   breadcrumbs?: { label: string; to?: string }[];
@@ -38,8 +43,8 @@ export interface AdminShellProps {
   children: ReactNode;
 }
 
-export function AdminShell({ title, description, breadcrumbs = [], actions, children }: AdminShellProps) {
-  const { auth, url } = usePage<PageProps & { url: string }>().props;
+export function SuperadminShell({ title, description, breadcrumbs = [], actions, children }: SuperadminShellProps) {
+  const { auth } = usePage<PageProps & { url: string }>().props;
   const currentUrl = usePage().url;
   const [open, setOpen] = useState(true);
 
@@ -54,19 +59,17 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100">
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex flex-col bg-gray-900 text-white transition-all duration-200",
           open ? "w-64" : "w-0 -translate-x-full md:w-16 md:translate-x-0"
         )}
       >
-        {/* Logo */}
         <div className="flex h-16 items-center gap-2 border-b border-white/10 px-4">
-         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-yellow-400 font-bold text-gray-900">N</div>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-yellow-400 font-bold text-gray-900">S</div>
           {open && (
             <div className="leading-tight">
-              <div className="text-sm font-semibold">DavaNav Solution</div>
+              <div className="text-sm font-semibold">Superadmin Console</div>
               <div className="text-[11px] text-white/60">Davao City Hall</div>
             </div>
           )}
@@ -77,20 +80,20 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
           )}
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-2">
           {NAV.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.to, item.exact);
+            const isPrimaryForRoute = PRIMARY_ID_FOR_ROUTE[item.to] === item.id;
+            const active = isPrimaryForRoute && isActive(item.to, item.exact);
             return (
               <Link
-                key={item.to}
+                key={item.id}
                 href={item.to}
                 className={cn(
                   "mb-1 flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                   active
-                  ? "bg-yellow-400 text-gray-900 font-medium"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
+                    ? "bg-yellow-400 text-gray-900 font-medium"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
                 )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
@@ -99,22 +102,16 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
             );
           })}
         </nav>
-
-       
       </aside>
 
-      {/* Main content */}
-      <div className={cn("flex min-h-screen w-full flex-col transition-all duration-200", open ? "md:pl-64" : "md:pl-16")}>
-        {/* Topbar */}
+      <div className={cn("flex min-h-screen w-full flex-col transition-all duration-200", open ? "md:pl-64" : "md:pl-16")}> 
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-white px-4 shadow-sm">
           <Button variant="ghost" size="icon" onClick={() => setOpen((o) => !o)}>
             <Menu className="h-5 w-5" />
           </Button>
 
-          
-
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/admin/notifications">
+            <Link href="/superadmin/notifications">
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
               </Button>
@@ -124,11 +121,11 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 text-xs font-semibold text-gray-900">
-                   {(user?.name ?? "A").charAt(0)}
+                    {(user?.name ?? "S").charAt(0)}
                   </div>
                   <div className="hidden text-left md:block">
                     <div className="text-xs font-medium leading-tight">{user?.name}</div>
-                    <div className="text-[10px] text-gray-400">Administrator</div>
+                    <div className="text-[10px] text-gray-400">Super Administrator</div>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -136,10 +133,10 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
                 <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/settings">Settings</Link>
+                  <Link href="/superadmin/settings">Settings</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/admin/dashboard">Dashboard</Link>
+                  <Link href="/superadmin/dashboard">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600">
@@ -151,25 +148,24 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
         </header>
 
         <main className="flex-1 p-4 md:p-6">
-          {/* Breadcrumbs */}
           {breadcrumbs.length > 0 && (
             <div className="mb-4 flex items-center gap-1 text-xs text-gray-400">
-              <Link href="/admin/dashboard" className="flex items-center gap-1 hover:text-gray-700">
-                <Home className="h-3 w-3" /> Admin
+              <Link href="/superadmin/dashboard" className="flex items-center gap-1 hover:text-gray-700">
+                <Home className="h-3 w-3" /> Superadmin
               </Link>
               {breadcrumbs.map((b, i) => (
                 <span key={i} className="flex items-center gap-1">
                   <ChevronRight className="h-3 w-3" />
-                  {b.to
-                    ? <Link href={b.to} className="hover:text-gray-700">{b.label}</Link>
-                    : <span className="text-gray-700">{b.label}</span>
-                  }
+                  {b.to ? (
+                    <Link href={b.to} className="hover:text-gray-700">{b.label}</Link>
+                  ) : (
+                    <span className="text-gray-700">{b.label}</span>
+                  )}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Page header */}
           <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               {breadcrumbs.length > 0 && (
@@ -194,12 +190,4 @@ export function AdminShell({ title, description, breadcrumbs = [], actions, chil
       </div>
     </div>
   );
-}
-
-export function StatusBadge({ status }: { status: string }) {
-  const color =
-    status === "Active" ? "bg-green-50 text-green-700 border-green-200" :
-    status === "Inactive" ? "bg-gray-100 text-gray-500 border-gray-200" :
-    "bg-gray-100 text-gray-500";
-  return <Badge variant="outline" className={cn(color)}>{status}</Badge>;
 }

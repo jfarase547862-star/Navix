@@ -16,8 +16,8 @@ import {
 import { toast } from "sonner";
 
 export default function Login() {
-  const [email, setEmail] = useState("admin@navix.gov");
-  const [password, setPassword] = useState("demo1234");
+  const [email, setEmail] = useState("admin@davanav.gov");
+  const [password, setPassword] = useState("password");
   const [show, setShow] = useState(false);
   const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ export default function Login() {
               <ShieldCheck className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Portal</h1>
-            <p className="mt-1 text-sm text-gray-400">Navix Solution · Davao City Hall</p>
+            <p className="mt-1 text-sm text-gray-400">DavaNav Solution · Davao City Hall</p>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-4">
@@ -82,7 +82,7 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@navix.gov"
+                placeholder="you@davanav.gov"
                 aria-invalid={!!errors.email}
                 className="h-10 rounded-lg border-gray-200 bg-white text-sm focus:border-[#1a56c4] focus:ring-[#1a56c4]/20"
               />
@@ -150,9 +150,7 @@ export default function Login() {
               )}
             </Button>
 
-            <p className="text-center text-xs text-gray-400">
-              Demo: any email and a password of 4+ characters will sign you in.
-            </p>
+           
           </form>
         </div>
       </div>
@@ -173,7 +171,7 @@ export default function Login() {
               type="email"
               value={forgotEmail}
               onChange={(e) => setForgotEmail(e.target.value)}
-              placeholder="you@navix.gov"
+              placeholder="you@davanav.gov"
             />
           </div>
           <DialogFooter>

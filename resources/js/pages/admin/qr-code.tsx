@@ -13,45 +13,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/admin/confirm-dialog';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface QrCode {
-    id: string;
-    code: string;
-    label: string;
-    officeId: string | null;
-    status: 'Active' | 'Inactive';
-    scans: number;
-    createdAt: string;
-}
-
-interface Office {
-    id: string;
-    name: string;
-    qrAssigned: boolean;
-}
-
-// ── Seed data ─────────────────────────────────────────────────────────────────
-
-const seedOffices: Office[] = [
-    { id: 'civil-registry',   name: 'Civil Registry Office',        qrAssigned: true  },
-    { id: 'treasury',         name: 'Treasury Office',               qrAssigned: true  },
-    { id: 'business-permits', name: 'Business Permits & Licensing',  qrAssigned: true  },
-    { id: 'assessor',         name: "Assessor's Office",             qrAssigned: true  },
-    { id: 'health',           name: 'City Health Office',            qrAssigned: false },
-    { id: 'engineering',      name: 'Engineering Office',            qrAssigned: true  },
-    { id: 'social-welfare',   name: 'Social Welfare & Development',  qrAssigned: false },
-    { id: 'mayors-office',    name: "Mayor's Office",                qrAssigned: true  },
-];
-
-const seedQrCodes: QrCode[] = [
-    { id: 'q1', code: 'NAVIX-MAIN-ENT', label: 'Main Entrance',      officeId: null,              status: 'Active', scans: 412, createdAt: '2025-05-01' },
-    { id: 'q2', code: 'NAVIX-GF-LOBBY', label: 'Ground Floor Lobby', officeId: null,              status: 'Active', scans: 305, createdAt: '2025-05-01' },
-    { id: 'q3', code: 'NAVIX-TREAS-01', label: 'Treasurer Office',   officeId: 'treasury',        status: 'Active', scans: 198, createdAt: '2025-05-04' },
-    { id: 'q4', code: 'NAVIX-MAYOR-01', label: 'Mayor Office',       officeId: 'mayors-office',   status: 'Active', scans: 142, createdAt: '2025-05-04' },
-    { id: 'q5', code: 'NAVIX-ENGR-01',  label: 'Engineering Office', officeId: 'engineering',     status: 'Active', scans: 121, createdAt: '2025-05-10' },
-];
+import {
+    type QrCode,
+    type Office,
+    seedQrCodes,
+    seedOffices,
+    buildQrString,
+    buildQrImagePath,
+} from '@/lib/mock-data';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -124,10 +93,13 @@ export default function QrPage() {
 
     function generate() {
         if (!genLabel.trim()) { toast.error('Label is required'); return; }
-        const code = `NAVIX-${genLabel.toUpperCase().replace(/\s+/g, '-').slice(0, 14)}`;
+        const code = `DAVANAV-${genLabel.toUpperCase().replace(/\s+/g, '-').slice(0, 14)}`;
+        const officeId = genOffice || null;
         const newQr: QrCode = {
             id: uid(), code, label: genLabel,
-            officeId: genOffice || null,
+            officeId,
+            qrString: buildQrString(officeId),
+            qrImagePath: buildQrImagePath(code),
             status: 'Active', scans: 0,
             createdAt: new Date().toISOString().slice(0, 10),
         };
@@ -147,16 +119,25 @@ export default function QrPage() {
     }
 
     function replace(qr: QrCode) {
-        setQrs((prev) => prev.map((x) =>
-            x.id === qr.id ? { ...x, code: `NAVIX-${Date.now().toString(36).toUpperCase()}`, scans: 0 } : x,
-        ));
+        setQrs((prev) => prev.map((x) => {
+            if (x.id !== qr.id) return x;
+            const newCode = `DAVANAV-${Date.now().toString(36).toUpperCase()}`;
+            return {
+                ...x,
+                code: newCode,
+                qrString: buildQrString(x.officeId),
+                qrImagePath: buildQrImagePath(newCode),
+                scans: 0,
+            };
+        }));
         toast.success('QR replaced with new code');
     }
 
     function assign() {
         if (!assignTarget) return;
+        const officeId = assignTo || null;
         setQrs((prev) => prev.map((x) =>
-            x.id === assignTarget.id ? { ...x, officeId: assignTo || null } : x,
+            x.id === assignTarget.id ? { ...x, officeId, qrString: buildQrString(officeId) } : x,
         ));
         if (assignTo) {
             setOffices((prev) => prev.map((o) => o.id === assignTo ? { ...o, qrAssigned: true } : o));
@@ -167,7 +148,7 @@ export default function QrPage() {
 
     function downloadQr(qr: QrCode) {
         const blob = new Blob(
-            [`Navix QR\nCode: ${qr.code}\nLabel: ${qr.label}\n`],
+            [`DavaNav QR\nCode: ${qr.code}\nLabel: ${qr.label}\nEncoded: ${qr.qrString}\nImage path: ${qr.qrImagePath}\n`],
             { type: 'text/plain' },
         );
         const url = URL.createObjectURL(blob);
@@ -190,7 +171,7 @@ export default function QrPage() {
 
     return (
         <>
-            <Head title="QR Code Management — Navix Admin" />
+            <Head title="QR Code Management — DavaNav Admin" />
             <AdminShell
                 title="QR Code Management"
                 description="Generate, assign, print, and track QR codes deployed across City Hall."
@@ -253,7 +234,7 @@ export default function QrPage() {
                                     )}
                                     {filtered.map((qr) => (
                                         <TableRow key={qr.id}>
-                                            <TableCell><QrSquare seed={qr.code} size={40} /></TableCell>
+                                            <TableCell><QrSquare seed={qr.qrString} size={40} /></TableCell>
                                             <TableCell className="font-medium">{qr.label}</TableCell>
                                             <TableCell className="font-mono text-xs">{qr.code}</TableCell>
                                             <TableCell>{officeName(qr.officeId)}</TableCell>
@@ -339,8 +320,13 @@ export default function QrPage() {
                             <DialogTitle>{previewQr?.label}</DialogTitle>
                             <DialogDescription className="font-mono">{previewQr?.code}</DialogDescription>
                         </DialogHeader>
-                        <div className="flex justify-center py-4">
-                            {previewQr && <QrSquare seed={previewQr.code} size={200} />}
+                        <div className="flex flex-col items-center gap-2 py-4">
+                            {previewQr && <QrSquare seed={previewQr.qrString} size={200} />}
+                            {previewQr && (
+                                <p className="max-w-xs break-all text-center text-xs text-gray-400">
+                                    {previewQr.qrString}
+                                </p>
+                            )}
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => previewQr && downloadQr(previewQr)}>Download</Button>

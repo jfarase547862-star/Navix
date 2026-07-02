@@ -10,7 +10,7 @@ import { ArrowLeft, MapPin, Phone, Mail, Clock, User, Navigation, QrCode } from 
 export const Route = createFileRoute("/office/$officeId")({
   head: ({ params }) => {
     const o = getOffice(params.officeId);
-    return { meta: [{ title: `${o?.name ?? "Office"} — Navix` }, { name: "description", content: o?.description ?? "" }] };
+    return { meta: [{ title: `${o?.name ?? "Office"} — DavaNav` }, { name: "description", content: o?.description ?? "" }] };
   },
   loader: ({ params }) => {
     const o = getOffice(params.officeId);
@@ -86,7 +86,7 @@ function OfficeDetails() {
                   <QrCode className="h-3.5 w-3.5" /> Office QR
                 </div>
                 <div className="mt-4 inline-block rounded-xl border border-border p-2">
-                  <QrCodeSvg value={`navix://office/${o.id}`} size={180} />
+                  <QrCodeSvg value={`davanav://office/${o.id}`} size={180} />
                 </div>
                 <div className="mt-3 text-xs text-muted-foreground">
                   Print and post at the entrance to this office.

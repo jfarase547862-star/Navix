@@ -6,8 +6,8 @@ import {
   type FloorMap, type Notification,
 } from "./mock-data";
 
-const KEY = "navix-admin-state-v1";
-const AUTH_KEY = "navix-admin-auth-v1";
+const KEY = "davanav-admin-state-v1";
+const AUTH_KEY = "davanav-admin-auth-v1";
 
 interface State {
   departments: Department[];
@@ -37,7 +37,7 @@ const initialState: State = {
   notifications: seedNotifications,
   rolePerms: defaultRolePerms,
   settings: {
-    siteName: "Navix Solution — Davao City Hall",
+    siteName: "DavaNav Solution — Davao City Hall",
     language: "English",
     theme: "light",
     emailNotifications: true,

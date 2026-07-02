@@ -51,7 +51,7 @@ export default function Register() {
 
                 <div className="relative z-10 text-center px-12">
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                        NAVIX
+                        DAVANAV
                     </h1>
                     <h2 className="text-4xl md:text-5xl font-light italic text-white mb-4">
                         Join us

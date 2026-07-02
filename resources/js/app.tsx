@@ -16,7 +16,12 @@ createInertiaApp({
         return resolvePageComponent(`./pages/${name}.tsx`, pages);
     },
     setup({ el, App, props }) {
-        const root = createRoot(el);
+        if (!el) {
+            console.error('Inertia mount element not found: `el` is null');
+            return;
+        }
+
+        const root = createRoot(el as Element);
 
         root.render(<App {...props} />);
     },

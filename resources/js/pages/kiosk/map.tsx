@@ -4,7 +4,7 @@ import { SiteFooter, SiteHeader } from '@/components/site-layout';
 import { MapLibreFloorMap, indoorRooms, CITY_HALL_NAME } from '@/components/maplibre-floor-map';
 import { seedOffices, getOffice } from '@/lib/mock-data';
 import { Input } from '@/components/ui/input';
-import { Search, Navigation, MapPin, ChevronDown, ZoomIn } from 'lucide-react';
+import { Search, Navigation, MapPin, ChevronDown, ZoomIn, Eye, Type, Accessibility, Volume2 } from 'lucide-react';
 
 const BLUE = '#1a4fa0';
 
@@ -36,7 +36,15 @@ export default function KioskMap() {
   const [destId, setDestId] = useState<string>(seedOffices[0].id);
   const initialFloor = getOffice(destId)?.floor ?? 1;
   const [floor, setFloor] = useState<number>(Number(initialFloor));
+  const [textSize, setTextSize] = useState<'normal' | 'large'>('normal');
+  const [language, setLanguage] = useState<'ENG' | 'CEB' | 'FIL'>('ENG');
+  const [accessibleRoute, setAccessibleRoute] = useState(false);
+  const [voiceGuide, setVoiceGuide] = useState(false);
   const dest = getOffice(destId);
+  const routeStep = (() => {
+    if (!dest) return 3;
+    return Number(dest.floor) === 1 ? 3 : 4;
+  })();
   const results = useMemo(
     () =>
       seedOffices.filter(
@@ -50,6 +58,59 @@ export default function KioskMap() {
       <Head title="Interactive Map" />
       <div className="flex min-h-screen flex-col" style={{ background: '#f8f9fb' }}>
         <SiteHeader />
+
+        <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="flex items-center gap-3">
+              <Eye className="h-5 w-5 flex-shrink-0" style={{ color: BLUE }} />
+              <div>
+                <div className="text-sm font-bold tracking-wide text-slate-800">DAVANAV ACCESSIBILITY</div>
+                <div className="text-[11px] text-slate-400">Tap options to make screen easier to read</div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-slate-500">Language:</span>
+              <div className="flex overflow-hidden rounded-full border border-slate-200">
+                {(['ENG', 'CEB', 'FIL'] as const).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setLanguage(item)}
+                    className="h-8 px-3 text-xs font-bold transition"
+                    style={
+                      language === item
+                        ? { background: BLUE, color: '#ffffff' }
+                        : { background: 'transparent', color: '#64748b' }
+                    }
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setTextSize((current) => (current === 'normal' ? 'large' : 'normal'))}
+                className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                <Type className="h-3.5 w-3.5" style={{ color: BLUE }} />
+                Text Size: {textSize === 'large' ? 'LARGE' : 'NORMAL'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVoiceGuide((value) => !value)}
+                className="flex h-8 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                <Volume2 className="h-3.5 w-3.5" style={{ color: BLUE }} />
+                <span className="hidden sm:inline">Voice Guide: </span>
+                {voiceGuide ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          </div>
+          
+        </div>
 
         <main className="flex-1">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -208,9 +269,7 @@ export default function KioskMap() {
                         {Number(dest.floor) !== 1 && (
                           <li>3. Use stairs / elevator to Floor {dest.floor}</li>
                         )}
-                        <li>
-                          {Number(dest.floor) !== 1 ? 4 : 3}. Arrive at {dest.room}
-                        </li>
+                        <li>{routeStep}. Arrive at {dest.room}</li>
                       </ol>
                       <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
                         <span className="flex items-center gap-1">
@@ -237,7 +296,7 @@ export default function KioskMap() {
           </div>
         </main>
 
-        <SiteFooter />
+        
       </div>
     </>
   );

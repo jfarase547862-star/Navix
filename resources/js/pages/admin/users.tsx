@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute()({
-  head: () => ({ meta: [{ title: "Admin — Users — Navix" }] }),
+  head: () => ({ meta: [{ title: "Admin — Users — DavaNav" }] }),
   component: UsersPage,
 });
 

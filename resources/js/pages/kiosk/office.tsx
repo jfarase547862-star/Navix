@@ -53,7 +53,7 @@ export default function OfficePage({ office: o }: Props) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Head title={`${o.name} — Navix`} />
+      <Head title={`${o.name} — DavaNav`} />
       <SiteHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -144,7 +144,7 @@ export default function OfficePage({ office: o }: Props) {
                   <QrCode className="h-3.5 w-3.5" /> Office QR
                 </div>
                 <div className="mt-4 inline-block rounded-xl border border-border p-2">
-                  <QrCodeSvg value={`navix://office/${o.id}`} size={180} />
+                  <QrCodeSvg value={`davanav://office/${o.id}`} size={180} />
                 </div>
                 <div className="mt-3 text-xs text-muted-foreground">
                   Print and post at the entrance to this office.
