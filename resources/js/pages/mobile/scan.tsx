@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { AppHeader } from '@/components/mobile/AppHeader';
 import { Footer } from '@/components/mobile/Footer';
@@ -135,19 +135,14 @@ export default function Scan() {
                 Floor {match.floor} · {match.room}
               </div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                <Link
-                  href={`/office/${match.id}`}
+                <button
+                  type="button"
+                  onClick={() => router.visit(`/navigate/${match.id}`)}
                   className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                   style={{ background: BLUE }}
                 >
-                  View Office
-                </Link>
-                <Link
-                  href={`/map?to=${match.id}`}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                >
-                  Navigate on Map
-                </Link>
+                  Navigate
+                </button>
               </div>
             </div>
           )}
