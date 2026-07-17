@@ -102,11 +102,6 @@ Route::prefix('superadmin')->middleware('auth')->group(function () {
     Route::get('/audit-logs',      fn() => Inertia::render('superadmin/supadmin-audit-logs'))->name('superadmin.audit-logs');
 });
 
-// ── Profile Routes ───────────────────────────────────────────
-Route::middleware('auth')->group(function () {
-    Route::get(PROFILE_PATH,    [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch(PROFILE_PATH,  [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete(PROFILE_PATH, [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
 
 require __DIR__.'/auth.php';
